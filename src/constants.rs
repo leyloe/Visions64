@@ -1,0 +1,3 @@
+pub const PLAYER_MOVEMENT_SPEED: f32 = 500.0;
+pub const PLAYER_SCALE_SPEED: f32 = 5.0;
+pub const PLAYER_ROTATION_SPEED: f32 = 5.0;
