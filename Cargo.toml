@@ -5,10 +5,10 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.13.2", features = ["dynamic_linking"] }
-bevy_fpc = "0.1.3"
-bevy_rapier2d = { version = "0.25.0", features = [
+bevy_fpc = { version = "0.1.3", features = ["bevy_fpc_sprint"] }
+bevy_rapier3d = { version = "0.25.0", features = [
     "simd-stable",
-    "debug-render-2d",
+    "debug-render-3d",
 ] }
 
 [profile.dev]

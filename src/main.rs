@@ -1,6 +1,6 @@
-use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
-use bevy_stuff::systems::{r#move::camera_movement, startup::setup};
+use bevy::{prelude::*, window::close_on_esc};
+use bevy_rapier3d::prelude::*;
+use bevy_stuff::systems::startup::setup;
 
 fn main() {
     App::new()
@@ -10,6 +10,6 @@ fn main() {
             bevy_fpc::FpcPlugin,
         ))
         .add_systems(Startup, setup)
-        .add_systems(FixedUpdate, camera_movement)
+        .add_systems(Update, close_on_esc)
         .run();
 }
