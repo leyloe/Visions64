@@ -24,7 +24,7 @@ pub fn spawn_player(mut commands: Commands) {
 pub fn player_move(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut player_query: Query<&mut Transform, With<Player>>,
-    camera_query: Query<&Transform, With<Camera>>,
+    camera_query: Query<&Transform, (With<Camera>, Without<Player>)>,
     time: Res<Time>,
 ) {
     let mut delta = Vec3::default();
