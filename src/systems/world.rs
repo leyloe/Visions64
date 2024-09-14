@@ -1,4 +1,4 @@
-use bevy::{color::palettes::tailwind, prelude::*, render::view::RenderLayers};
+use bevy::{color::palettes::tailwind, prelude::*};
 
 pub fn spawn_world_model(
     mut commands: Commands,
