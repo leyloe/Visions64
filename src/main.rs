@@ -1,8 +1,8 @@
-use bevy::prelude::*;
+use bevy::{input::common_conditions::input_just_pressed, prelude::*};
 use bevy_rapier3d::prelude::*;
 use bevy_stuff::systems::{
-    player::{player_move, spawn_camera},
-    window::{close_on_esc, lock_mouse},
+    player::{camera_move, player_move, spawn_camera},
+    window::{lock_mouse, toggle_mouse},
     world::{spawn_lights, spawn_world_model},
 };
 
@@ -13,7 +13,10 @@ fn main() {
             Startup,
             (spawn_camera, lock_mouse, spawn_world_model, spawn_lights),
         )
-        .add_systems(FixedUpdate, player_move)
-        .add_systems(Update, close_on_esc)
+        .add_systems(FixedUpdate, (player_move, camera_move))
+        .add_systems(
+            Update,
+            (toggle_mouse.run_if(input_just_pressed(KeyCode::Escape)),),
+        )
         .run();
 }

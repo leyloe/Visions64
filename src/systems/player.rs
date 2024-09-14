@@ -1,3 +1,4 @@
+use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
 use crate::{components::Player, constants::PLAYER_MOVEMENT_SPEED};
@@ -18,7 +19,7 @@ pub fn player_move(
     time: Res<Time>,
 ) {
     let mut delta = Vec3::default();
-    let mut player_transform = query.single_mut();
+    let mut transform = query.single_mut();
 
     if keyboard_input.pressed(KeyCode::KeyA) {
         delta.x -= 1.0;
@@ -33,7 +34,18 @@ pub fn player_move(
         delta.z += 1.0;
     }
 
-    player_transform.translation.x += delta.x * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
+    transform.translation.x += delta.x * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
 
-    player_transform.translation.z += delta.z * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
+    transform.translation.z += delta.z * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
+}
+
+pub fn camera_move(
+    mut mouse_motion_events: EventReader<MouseMotion>,
+    mut query: Query<&mut Transform, With<Player>>,
+) {
+    let mut transform = query.single_mut();
+    for event in mouse_motion_events.read() {
+        transform.rotation.x += event.delta.x;
+        transform.rotation.y += event.delta.y;
+    }
 }
