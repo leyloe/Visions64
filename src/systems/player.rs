@@ -39,9 +39,9 @@ pub fn player_move(
         delta.z += 1.0;
     }
 
-    transform.translation.x += delta.x * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
+    let movement = transform.rotation * delta * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
 
-    transform.translation.z += delta.z * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
+    transform.translation += movement;
 }
 
 pub fn camera_move(
