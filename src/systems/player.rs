@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::Player,
-    constants::{PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED},
+    constants::{PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED},
 };
 
 pub fn spawn_camera(mut commands: Commands) {
@@ -56,7 +56,6 @@ pub fn camera_move(
         let (yaw, pitch, roll) = transform.rotation.to_euler(EulerRot::YXZ);
         let yaw = yaw + delta_yaw;
 
-        const PITCH_LIMIT: f32 = FRAC_PI_2 - 0.01;
         let pitch = (pitch + delta_pitch).clamp(-PITCH_LIMIT, PITCH_LIMIT);
 
         transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
