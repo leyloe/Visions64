@@ -7,25 +7,31 @@ use crate::{
     constants::{PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED},
 };
 
-pub fn spawn_camera(mut commands: Commands) {
-    commands.spawn((
-        Player,
-        Camera3dBundle {
-            transform: Transform::from_xyz(0.0, 5.0, 0.0),
-            ..default()
-        },
-        Collider::capsule(0.5, 1.0),
-        RigidBody::Dynamic,
-    ));
+pub fn spawn_player(mut commands: Commands) {
+    commands
+        .spawn((
+            Player,
+            Transform::from_xyz(0.0, 1.0, 0.0),
+            GlobalTransform::default(),
+            Collider::cylinder(1., 1.),
+            RigidBody::Dynamic,
+        ))
+        .with_children(|parent| {
+            parent.spawn(Camera3dBundle { ..default() });
+        });
 }
 
 pub fn player_move(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<&mut Transform, With<Player>>,
+    mut player_query: Query<&mut Transform, With<Player>>,
+    camera_query: Query<&Transform, With<Camera>>,
     time: Res<Time>,
 ) {
     let mut delta = Vec3::default();
-    let mut transform = query.single_mut();
+
+    let camera_transform = camera_query.single();
+
+    let mut player_transform = player_query.single_mut();
 
     if keyboard_input.pressed(KeyCode::KeyA) {
         delta.x -= 1.0;
@@ -40,14 +46,14 @@ pub fn player_move(
         delta.z += 1.0;
     }
 
-    let movement = transform.rotation * delta * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
+    let movement = camera_transform.rotation * delta * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
 
-    transform.translation += movement;
+    player_transform.translation += movement;
 }
 
 pub fn camera_move(
     mut mouse_motion_events: EventReader<MouseMotion>,
-    mut query: Query<&mut Transform, With<Player>>,
+    mut query: Query<&mut Transform, With<Camera>>,
 ) {
     let mut transform = query.single_mut();
     for event in mouse_motion_events.read() {

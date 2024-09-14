@@ -7,6 +7,7 @@ pub fn spawn_world_model(mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn((
         SceneBundle { scene, ..default() },
         ColliderConstructorHierarchy::new(ColliderConstructor::TrimeshFromMesh),
+        RigidBody::Static,
     ));
 }
 
