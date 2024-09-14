@@ -1,33 +1,13 @@
+use avian3d::prelude::*;
 use bevy::{color::palettes::tailwind, prelude::*};
 
-pub fn spawn_world_model(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    let floor = meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(10.0)));
-    let cube = meshes.add(Cuboid::new(2.0, 0.5, 1.0));
-    let material = materials.add(Color::WHITE);
+pub fn spawn_world_model(mut commands: Commands, assets: Res<AssetServer>) {
+    let scene = assets.load("untitled.glb#Scene0");
 
-    commands.spawn(MaterialMeshBundle {
-        mesh: floor,
-        material: material.clone(),
-        ..default()
-    });
-
-    commands.spawn(MaterialMeshBundle {
-        mesh: cube.clone(),
-        material: material.clone(),
-        transform: Transform::from_xyz(0.0, 0.25, -3.0),
-        ..default()
-    });
-
-    commands.spawn(MaterialMeshBundle {
-        mesh: cube,
-        material,
-        transform: Transform::from_xyz(0.75, 1.75, 0.0),
-        ..default()
-    });
+    commands.spawn((
+        SceneBundle { scene, ..default() },
+        ColliderConstructorHierarchy::new(ColliderConstructor::TrimeshFromMesh),
+    ));
 }
 
 pub fn spawn_lights(mut commands: Commands) {

@@ -1,5 +1,4 @@
-use std::f32::consts::FRAC_PI_2;
-
+use avian3d::prelude::*;
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
@@ -12,9 +11,11 @@ pub fn spawn_camera(mut commands: Commands) {
     commands.spawn((
         Player,
         Camera3dBundle {
-            transform: Transform::from_xyz(0.0, 0.50, 0.0),
+            transform: Transform::from_xyz(0.0, 5.0, 0.0),
             ..default()
         },
+        Collider::capsule(0.5, 1.0),
+        RigidBody::Dynamic,
     ));
 }
 
