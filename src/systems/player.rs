@@ -1,7 +1,12 @@
+use std::f32::consts::FRAC_PI_2;
+
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
-use crate::{components::Player, constants::PLAYER_MOVEMENT_SPEED};
+use crate::{
+    components::Player,
+    constants::{PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED},
+};
 
 pub fn spawn_camera(mut commands: Commands) {
     commands.spawn((
@@ -45,7 +50,15 @@ pub fn camera_move(
 ) {
     let mut transform = query.single_mut();
     for event in mouse_motion_events.read() {
-        transform.rotation.x += event.delta.x;
-        transform.rotation.y += event.delta.y;
+        let delta_yaw = -event.delta.x * PLAYER_CAMERA_SENSITIVITY.x;
+        let delta_pitch = -event.delta.y * PLAYER_CAMERA_SENSITIVITY.y;
+
+        let (yaw, pitch, roll) = transform.rotation.to_euler(EulerRot::YXZ);
+        let yaw = yaw + delta_yaw;
+
+        const PITCH_LIMIT: f32 = FRAC_PI_2 - 0.01;
+        let pitch = (pitch + delta_pitch).clamp(-PITCH_LIMIT, PITCH_LIMIT);
+
+        transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
     }
 }
