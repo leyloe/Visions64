@@ -1,15 +1,27 @@
-use avian3d::prelude::*;
+use avian3d::{
+    math::{Scalar, Vector},
+    prelude::*,
+};
 use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
-use crate::{
-    components::Player,
-    constants::{PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED},
+use crate::constants::{
+    MAX_SLOPE_ANGLE, PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED,
 };
+
+#[derive(Component)]
+struct Player;
+
+#[derive(Component)]
+pub struct MaxSlopeAngle(Scalar);
+
+#[derive(Component)]
+#[component(storage = "SparseSet")]
+pub struct Grounded;
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, spawn_player)
-        .add_systems(FixedUpdate, (move_player, move_camera));
+        .add_systems(FixedUpdate, (move_player, move_camera, update_grounded));
 }
 
 fn spawn_player(mut commands: Commands) {
@@ -21,6 +33,10 @@ fn spawn_player(mut commands: Commands) {
             LockedAxes::ROTATION_LOCKED,
             Collider::capsule(0.5, 1.),
             RigidBody::Dynamic,
+            MaxSlopeAngle(MAX_SLOPE_ANGLE),
+            Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
+            Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
+            GravityScale(2.0),
         ))
         .with_children(|parent| {
             parent.spawn(Camera3dBundle { ..default() });
@@ -74,5 +90,28 @@ fn move_camera(
         let pitch = (pitch + delta_pitch).clamp(-PITCH_LIMIT, PITCH_LIMIT);
 
         transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
+    }
+}
+
+fn update_grounded(
+    mut commands: Commands,
+    mut query: Query<(Entity, &ShapeHits, &Rotation, Option<&MaxSlopeAngle>), With<Player>>,
+) {
+    for (entity, hits, rotation, max_slope_angle) in &mut query {
+        let is_grounded = hits.iter().any(|hit| {
+            if let Some(angle) = max_slope_angle {
+                (rotation * -hit.normal2).angle_between(Vector::Y).abs() <= angle.0
+            } else {
+                true
+            }
+        });
+
+        println!("Entity: {:?}, Is Grounded: {:?}", entity, is_grounded);
+
+        if is_grounded {
+            commands.entity(entity).insert(Grounded);
+        } else {
+            commands.entity(entity).remove::<Grounded>();
+        }
     }
 }
