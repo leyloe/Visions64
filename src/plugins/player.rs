@@ -6,7 +6,7 @@ use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
 use crate::constants::{
-    DAMPING, JUMP_IMPULSE, MAX_SLOPE_ANGLE, MOVEMENT_ACCELERATION, PITCH_LIMIT,
+    DAMPING, FIELD_OF_VIEW, JUMP_IMPULSE, MAX_SLOPE_ANGLE, MOVEMENT_ACCELERATION, PITCH_LIMIT,
     PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED,
 };
 
@@ -76,7 +76,14 @@ fn spawn_player(mut commands: Commands) {
             GravityScale(2.0),
         ))
         .with_children(|parent| {
-            parent.spawn(Camera3dBundle { ..default() });
+            parent.spawn(Camera3dBundle {
+                projection: PerspectiveProjection {
+                    fov: FIELD_OF_VIEW.to_radians(),
+                    ..default()
+                }
+                .into(),
+                ..default()
+            });
         });
 }
 
