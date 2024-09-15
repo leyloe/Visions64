@@ -6,8 +6,8 @@ use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
 use crate::constants::{
-    DAMPING, FIELD_OF_VIEW, JUMP_IMPULSE, MAX_SLOPE_ANGLE, MOVEMENT_ACCELERATION, PITCH_LIMIT,
-    PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED,
+    DAMPING, FIELD_OF_VIEW, GRAVITY_SCALE, JUMP_IMPULSE, MAX_SLOPE_ANGLE, MOVEMENT_ACCELERATION,
+    PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED,
 };
 
 #[derive(Component)]
@@ -26,7 +26,6 @@ pub struct MovementAcceleration(Scalar);
 pub struct MovementDampingFactor(Scalar);
 
 #[derive(Component)]
-#[component(storage = "SparseSet")]
 pub struct Grounded;
 
 pub fn plugin(app: &mut App) {
@@ -73,7 +72,7 @@ fn spawn_player(mut commands: Commands) {
             MovementDampingFactor(DAMPING),
             Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
             Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
-            GravityScale(2.0),
+            GravityScale(GRAVITY_SCALE),
         ))
         .with_children(|parent| {
             parent.spawn(Camera3dBundle {

@@ -9,3 +9,4 @@ pub const MOVEMENT_ACCELERATION: f32 = 30.0;
 pub const JUMP_IMPULSE: f32 = 7.0;
 pub const DAMPING: f32 = 0.9;
 pub const FIELD_OF_VIEW: f32 = 90.0;
+pub const GRAVITY_SCALE: f32 = 2.0;
