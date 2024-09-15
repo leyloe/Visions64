@@ -30,16 +30,18 @@ pub struct MovementDampingFactor(Scalar);
 pub struct Grounded;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(Startup, spawn_player).add_systems(
-        FixedUpdate,
-        (
-            move_player,
-            move_camera,
-            update_grounded,
-            apply_movement_damping,
-            player_jump,
-        ),
-    );
+    app.add_systems(Startup, spawn_player)
+        .add_systems(
+            FixedUpdate,
+            (
+                move_player,
+                update_grounded,
+                apply_movement_damping,
+                player_jump,
+            )
+                .chain(),
+        )
+        .add_systems(Update, move_camera);
 }
 
 fn spawn_player(mut commands: Commands) {
