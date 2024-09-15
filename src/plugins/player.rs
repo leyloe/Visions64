@@ -55,16 +55,16 @@ fn move_player(
 
     let mut player_transform = player_query.single_mut();
 
-    if keyboard_input.pressed(KeyCode::KeyA) {
+    if keyboard_input.any_pressed([KeyCode::KeyA, KeyCode::ArrowLeft]) {
         delta.x -= 1.0;
     }
-    if keyboard_input.pressed(KeyCode::KeyD) {
+    if keyboard_input.any_pressed([KeyCode::KeyD, KeyCode::ArrowRight]) {
         delta.x += 1.0;
     }
-    if keyboard_input.pressed(KeyCode::KeyW) {
+    if keyboard_input.any_pressed([KeyCode::KeyW, KeyCode::ArrowUp]) {
         delta.z -= 1.0;
     }
-    if keyboard_input.pressed(KeyCode::KeyS) {
+    if keyboard_input.any_pressed([KeyCode::KeyS, KeyCode::ArrowDown]) {
         delta.z += 1.0;
     }
 
