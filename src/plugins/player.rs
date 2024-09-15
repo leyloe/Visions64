@@ -98,10 +98,10 @@ fn move_player(
     if keyboard_input.any_pressed([KeyCode::KeyD, KeyCode::ArrowRight]) {
         delta.x += 1.0;
     }
-    if keyboard_input.any_pressed([KeyCode::KeyS, KeyCode::ArrowUp]) {
+    if keyboard_input.any_pressed([KeyCode::KeyS, KeyCode::ArrowDown]) {
         delta.z -= 1.0;
     }
-    if keyboard_input.any_pressed([KeyCode::KeyW, KeyCode::ArrowDown]) {
+    if keyboard_input.any_pressed([KeyCode::KeyW, KeyCode::ArrowUp]) {
         delta.z += 1.0;
     }
 
