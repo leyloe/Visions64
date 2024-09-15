@@ -13,7 +13,11 @@ pub fn spawn_player(mut commands: Commands) {
             Player,
             Transform::from_xyz(0.0, 1.0, 0.0),
             GlobalTransform::default(),
-            Collider::cylinder(1., 1.),
+            LockedAxes::new()
+                .lock_rotation_x()
+                .lock_rotation_y()
+                .lock_rotation_z(),
+            Collider::capsule(0.5, 1.),
             RigidBody::Dynamic,
         ))
         .with_children(|parent| {
