@@ -1,17 +1,21 @@
 use avian3d::prelude::*;
 use bevy::{color::palettes::tailwind, prelude::*};
 
-pub fn spawn_world_model(mut commands: Commands, assets: Res<AssetServer>) {
+pub fn plugin(app: &mut App) {
+    app.add_systems(Startup, (spawn_world_model, spawn_lights));
+}
+
+fn spawn_world_model(mut commands: Commands, assets: Res<AssetServer>) {
     let scene = assets.load("untitled.glb#Scene0");
 
     commands.spawn((
         SceneBundle { scene, ..default() },
-        ColliderConstructorHierarchy::new(ColliderConstructor::TrimeshFromMesh),
+        ColliderConstructorHierarchy::new(ColliderConstructor::ConvexHullFromMesh),
         RigidBody::Static,
     ));
 }
 
-pub fn spawn_lights(mut commands: Commands) {
+fn spawn_lights(mut commands: Commands) {
     commands.spawn((PointLightBundle {
         point_light: PointLight {
             color: Color::from(tailwind::ROSE_300),

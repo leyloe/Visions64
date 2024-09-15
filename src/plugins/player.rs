@@ -7,16 +7,18 @@ use crate::{
     constants::{PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED},
 };
 
-pub fn spawn_player(mut commands: Commands) {
+pub fn plugin(app: &mut App) {
+    app.add_systems(Startup, spawn_player)
+        .add_systems(FixedUpdate, (move_player, move_camera));
+}
+
+fn spawn_player(mut commands: Commands) {
     commands
         .spawn((
             Player,
             Transform::from_xyz(0.0, 1.0, 0.0),
             GlobalTransform::default(),
-            LockedAxes::new()
-                .lock_rotation_x()
-                .lock_rotation_y()
-                .lock_rotation_z(),
+            LockedAxes::ROTATION_LOCKED,
             Collider::capsule(0.5, 1.),
             RigidBody::Dynamic,
         ))
@@ -25,7 +27,7 @@ pub fn spawn_player(mut commands: Commands) {
         });
 }
 
-pub fn player_move(
+fn move_player(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut player_query: Query<&mut Transform, With<Player>>,
     camera_query: Query<&Transform, (With<Camera>, Without<Player>)>,
@@ -50,12 +52,14 @@ pub fn player_move(
         delta.z += 1.0;
     }
 
-    let movement = camera_transform.rotation * delta * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
+    let yaw_rotation = Quat::from_rotation_y(camera_transform.rotation.to_euler(EulerRot::YXZ).0);
+
+    let movement = yaw_rotation * delta * PLAYER_MOVEMENT_SPEED * time.delta_seconds();
 
     player_transform.translation += movement;
 }
 
-pub fn camera_move(
+fn move_camera(
     mut mouse_motion_events: EventReader<MouseMotion>,
     mut query: Query<&mut Transform, With<Camera>>,
 ) {
