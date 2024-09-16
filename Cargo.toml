@@ -5,7 +5,9 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.14.2", features = ["dynamic_linking"] }
-avian3d = { version = "0.1.2", features = ["simd"] }
+avian3d = { version = "0.1.2", features = [
+    "simd",
+], git = "https://github.com/Jondolf/avian" }
 leafwing-input-manager = { git = "https://github.com/Leafwing-Studios/leafwing_input_manager" }
 avian_interpolation3d = { git = "https://github.com/janhohenheim/avian_interpolation", version = "0.1.0" }
 
