@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-avian3d = { version = "0.1.2", features = ["simd"] }
 bevy = { version = "0.14.2", features = ["dynamic_linking"] }
+avian3d = { version = "0.1.2", features = ["simd"] }
+leafwing-input-manager = { git = "https://github.com/Leafwing-Studios/leafwing_input_manager" }
 
 [profile.dev]
 opt-level = 1

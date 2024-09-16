@@ -2,16 +2,17 @@ use avian3d::{
     math::{AdjustPrecision as _, Quaternion, Scalar, Vector},
     prelude::*,
 };
-use bevy::input::mouse::MouseMotion;
 use bevy::prelude::*;
 
 use crate::constants::{
-    DAMPING, FIELD_OF_VIEW, GRAVITY_SCALE, JUMP_IMPULSE, MAX_SLOPE_ANGLE, MOVEMENT_ACCELERATION,
-    PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY, PLAYER_MOVEMENT_SPEED,
+    DAMPING, GRAVITY_SCALE, JUMP_IMPULSE, MAX_SLOPE_ANGLE, MOVEMENT_ACCELERATION,
+    PLAYER_MOVEMENT_SPEED,
 };
 
+use super::camera::PlayerCamera;
+
 #[derive(Component)]
-struct Player;
+pub struct Player;
 
 #[derive(Component)]
 pub struct MaxSlopeAngle(Scalar);
@@ -29,18 +30,16 @@ pub struct MovementDampingFactor(Scalar);
 pub struct Grounded;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(Startup, spawn_player)
-        .add_systems(
-            FixedUpdate,
-            (
-                move_player,
-                update_grounded,
-                apply_movement_damping,
-                player_jump,
-            )
-                .chain(),
+    app.add_systems(Startup, spawn_player).add_systems(
+        FixedUpdate,
+        (
+            move_player,
+            update_grounded,
+            apply_movement_damping,
+            player_jump,
         )
-        .add_systems(Update, move_camera);
+            .chain(),
+    );
 }
 
 fn spawn_player(mut commands: Commands) {
@@ -57,39 +56,28 @@ fn spawn_player(mut commands: Commands) {
     )
     .with_max_time_of_impact(0.2);
 
-    commands
-        .spawn((
-            Player,
-            Transform::from_xyz(0.0, 1.0, 0.0),
-            GlobalTransform::default(),
-            LockedAxes::ROTATION_LOCKED,
-            collider,
-            ground_caster,
-            RigidBody::Dynamic,
-            MaxSlopeAngle(MAX_SLOPE_ANGLE),
-            JumpImpulse(JUMP_IMPULSE),
-            MovementAcceleration(MOVEMENT_ACCELERATION),
-            MovementDampingFactor(DAMPING),
-            Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
-            Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
-            GravityScale(GRAVITY_SCALE),
-        ))
-        .with_children(|parent| {
-            parent.spawn(Camera3dBundle {
-                projection: PerspectiveProjection {
-                    fov: FIELD_OF_VIEW.to_radians(),
-                    ..default()
-                }
-                .into(),
-                ..default()
-            });
-        });
+    commands.spawn((
+        Player,
+        Transform::from_xyz(0.0, 1.0, 0.0),
+        GlobalTransform::default(),
+        LockedAxes::ROTATION_LOCKED,
+        collider,
+        ground_caster,
+        RigidBody::Dynamic,
+        MaxSlopeAngle(MAX_SLOPE_ANGLE),
+        JumpImpulse(JUMP_IMPULSE),
+        MovementAcceleration(MOVEMENT_ACCELERATION),
+        MovementDampingFactor(DAMPING),
+        Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
+        Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
+        GravityScale(GRAVITY_SCALE),
+    ));
 }
 
 fn move_player(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut player_query: Query<(&mut LinearVelocity, &MovementAcceleration), With<Player>>,
-    camera_query: Query<&Transform, (With<Camera>, Without<Player>)>,
+    camera_query: Query<&Transform, (With<PlayerCamera>, Without<Player>)>,
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds_f64().adjust_precision();
@@ -132,24 +120,6 @@ fn player_jump(
 
     if keyboard_input.pressed(KeyCode::Space) && grounded.is_some() {
         linear_velocity.y = jump_impulse.0;
-    }
-}
-
-fn move_camera(
-    mut mouse_motion_events: EventReader<MouseMotion>,
-    mut query: Query<&mut Transform, With<Camera>>,
-) {
-    let mut transform = query.single_mut();
-    for event in mouse_motion_events.read() {
-        let delta_yaw = -event.delta.x * PLAYER_CAMERA_SENSITIVITY.x;
-        let delta_pitch = -event.delta.y * PLAYER_CAMERA_SENSITIVITY.y;
-
-        let (yaw, pitch, roll) = transform.rotation.to_euler(EulerRot::YXZ);
-        let yaw = yaw + delta_yaw;
-
-        let pitch = (pitch + delta_pitch).clamp(-PITCH_LIMIT, PITCH_LIMIT);
-
-        transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
     }
 }
 
