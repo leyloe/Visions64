@@ -101,7 +101,10 @@ fn move_player(
         delta.z += 1.0;
     }
 
-    let forward = camera_transform.forward();
+    let mut forward: Vec3 = camera_transform.forward().into();
+    forward.y = 0.0;
+    forward = forward.normalize_or_zero();
+
     let right = camera_transform.right();
 
     let movement_direction = (right * delta.x + forward * delta.z).normalize_or_zero();
