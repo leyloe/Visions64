@@ -1,5 +1,5 @@
 use avian3d::{
-    math::{AdjustPrecision as _, Quaternion, Scalar, Vector},
+    math::{AdjustPrecision as _, Quaternion, Vector},
     prelude::*,
 };
 use bevy::prelude::*;
@@ -14,18 +14,6 @@ use super::camera::PlayerCamera;
 
 #[derive(Component)]
 pub struct Player;
-
-#[derive(Component)]
-pub struct MaxSlopeAngle(Scalar);
-
-#[derive(Component)]
-pub struct JumpImpulse(Scalar);
-
-#[derive(Component)]
-pub struct MovementAcceleration(Scalar);
-
-#[derive(Component)]
-pub struct MovementDampingFactor(Scalar);
 
 #[derive(Component)]
 pub struct Grounded;
@@ -93,29 +81,18 @@ fn spawn_player(mut commands: Commands) {
         Transform::from_xyz(0.0, 1.0, 0.0),
         GlobalTransform::default(),
         LockedAxes::ROTATION_LOCKED,
-        collider,
-        ground_caster,
         RigidBody::Dynamic,
-        MaxSlopeAngle(MAX_SLOPE_ANGLE),
-        JumpImpulse(JUMP_IMPULSE),
-        MovementAcceleration(MOVEMENT_ACCELERATION),
-        MovementDampingFactor(DAMPING),
         InputManagerBundle::with_map(PlayerAction::default_input_map()),
         Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
         Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
         GravityScale(GRAVITY_SCALE),
+        collider,
+        ground_caster,
     ));
 }
 
 fn move_player(
-    mut player_query: Query<
-        (
-            &mut LinearVelocity,
-            &MovementAcceleration,
-            &ActionState<PlayerAction>,
-        ),
-        With<Player>,
-    >,
+    mut player_query: Query<(&mut LinearVelocity, &ActionState<PlayerAction>), With<Player>>,
     camera_query: Query<&Transform, (With<PlayerCamera>, Without<Player>)>,
     time: Res<Time>,
 ) {
@@ -123,7 +100,7 @@ fn move_player(
 
     let camera_transform = camera_query.single();
 
-    let (mut linear_velocity, movement_acceleration, action_state) = player_query.single_mut();
+    let (mut linear_velocity, action_state) = player_query.single_mut();
 
     let delta = action_state.axis_pair(&PlayerAction::Move);
 
@@ -136,9 +113,9 @@ fn move_player(
     let movement_direction = (right * delta.x + forward * delta.y).normalize_or_zero();
 
     linear_velocity.x +=
-        movement_direction.x * movement_acceleration.0 * delta_time * PLAYER_MOVEMENT_SPEED;
+        movement_direction.x * MOVEMENT_ACCELERATION * delta_time * PLAYER_MOVEMENT_SPEED;
     linear_velocity.z +=
-        movement_direction.z * movement_acceleration.0 * delta_time * PLAYER_MOVEMENT_SPEED
+        movement_direction.z * MOVEMENT_ACCELERATION * delta_time * PLAYER_MOVEMENT_SPEED
 }
 
 fn player_jump(
@@ -147,26 +124,25 @@ fn player_jump(
             &ActionState<PlayerAction>,
             Option<&Grounded>,
             &mut LinearVelocity,
-            &JumpImpulse,
         ),
         With<Player>,
     >,
 ) {
-    let (action_state, grounded, mut linear_velocity, jump_impulse) = player_query.single_mut();
+    let (action_state, grounded, mut linear_velocity) = player_query.single_mut();
 
     if action_state.pressed(&PlayerAction::Jump) && grounded.is_some() {
-        linear_velocity.y = jump_impulse.0;
+        linear_velocity.y = JUMP_IMPULSE;
     }
 }
 
 fn update_grounded(
     mut commands: Commands,
-    mut query: Query<(Entity, &ShapeHits, &Rotation, Option<&MaxSlopeAngle>), With<Player>>,
+    mut query: Query<(Entity, &ShapeHits, &Rotation), With<Player>>,
 ) {
-    for (entity, hits, rotation, max_slope_angle) in &mut query {
+    for (entity, hits, rotation) in &mut query {
         let is_grounded = hits.iter().any(|hit| {
-            if let Some(angle) = max_slope_angle {
-                (rotation * -hit.normal2).angle_between(Vector::Y).abs() <= angle.0
+            if let Some(angle) = MAX_SLOPE_ANGLE {
+                (rotation * -hit.normal2).angle_between(Vector::Y).abs() <= angle
             } else {
                 true
             }
@@ -180,11 +156,9 @@ fn update_grounded(
     }
 }
 
-fn apply_movement_damping(
-    mut query: Query<(&MovementDampingFactor, &mut LinearVelocity), With<Player>>,
-) {
-    for (damping_factor, mut linear_velocity) in &mut query {
-        linear_velocity.x *= damping_factor.0;
-        linear_velocity.z *= damping_factor.0;
+fn apply_movement_damping(mut query: Query<&mut LinearVelocity, With<Player>>) {
+    for mut linear_velocity in &mut query {
+        linear_velocity.x *= DAMPING;
+        linear_velocity.z *= DAMPING;
     }
 }
