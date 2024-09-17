@@ -1,10 +1,9 @@
 use avian3d::prelude::*;
 use avian_interpolation3d::AvianInterpolationPlugin;
 use bevy::prelude::*;
-use bevy_stuff::plugins::{
-    camera::{self},
-    controls::PlayerAction,
-    player::{self},
+
+use bevy_stuff::{
+    player::{camera, controls::PlayerAction, movement},
     window, world,
 };
 use leafwing_input_manager::plugin::InputManagerPlugin;
@@ -17,7 +16,7 @@ fn main() {
             AvianInterpolationPlugin::default(),
             InputManagerPlugin::<PlayerAction>::default(),
             world::plugin,
-            player::plugin,
+            movement::plugin,
             camera::plugin,
             window::plugin,
         ))
