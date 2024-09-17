@@ -87,13 +87,16 @@ fn move_player(
         movement_direction.z * MOVEMENT_ACCELERATION * delta_time * PLAYER_MOVEMENT_SPEED
 }
 
-type PlayerJumpQuery<'a> = (
-    &'a ActionState<PlayerAction>,
-    Option<&'a Grounded>,
-    &'a mut LinearVelocity,
-);
-
-fn player_jump(mut player_query: Query<PlayerJumpQuery, With<Player>>) {
+fn player_jump(
+    mut player_query: Query<
+        (
+            &ActionState<PlayerAction>,
+            Option<&Grounded>,
+            &mut LinearVelocity,
+        ),
+        With<Player>,
+    >,
+) {
     let (action_state, grounded, mut linear_velocity) = player_query.single_mut();
 
     if action_state.pressed(&PlayerAction::Jump) && grounded.is_some() {
