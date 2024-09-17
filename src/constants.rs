@@ -3,6 +3,7 @@ use std::f32::consts::{FRAC_PI_2, PI};
 
 pub const PLAYER_MOVEMENT_SPEED: f32 = 2.0;
 pub const PLAYER_CAMERA_SENSITIVITY: Vec2 = Vec2::new(0.003, 0.002);
+pub const PLAYER_CONTROLLER_CAMERA_SENSITIVITY_MULTIPLIER: Vec2 = Vec2::new(10.0, 10.0);
 pub const PITCH_LIMIT: f32 = FRAC_PI_2 - 0.01;
 pub const MAX_SLOPE_ANGLE: Option<f32> = Some(PI * 0.45);
 pub const MOVEMENT_ACCELERATION: f32 = 30.0;
