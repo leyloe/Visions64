@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use leafwing_input_manager::{prelude::*, Actionlike};
 
-use crate::constants::PLAYER_CONTROLLER_CAMERA_SENSITIVITY_MULTIPLIER;
+use crate::constants::{PLAYER_CAMERA_CONTROLLER_SENSITIVITY, PLAYER_CAMERA_MOUSE_SENSITIVITY};
 
 #[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
 pub enum PlayerAction {
@@ -16,14 +16,19 @@ impl PlayerAction {
     pub fn default_input_map() -> InputMap<Self> {
         let mut input_map = InputMap::default();
 
-        input_map.insert_dual_axis(PlayerAction::RotateCamera, MouseMove::default());
+        input_map.insert_dual_axis(
+            PlayerAction::RotateCamera,
+            MouseMove::default()
+                .sensitivity_x(PLAYER_CAMERA_MOUSE_SENSITIVITY.x)
+                .sensitivity_y(PLAYER_CAMERA_MOUSE_SENSITIVITY.y),
+        );
 
         input_map.insert_dual_axis(
             PlayerAction::RotateCamera,
             GamepadStick::RIGHT
+                .sensitivity_x(PLAYER_CAMERA_CONTROLLER_SENSITIVITY.x)
+                .sensitivity_y(PLAYER_CAMERA_CONTROLLER_SENSITIVITY.y)
                 .with_deadzone_symmetric(0.2)
-                .sensitivity_x(PLAYER_CONTROLLER_CAMERA_SENSITIVITY_MULTIPLIER.x)
-                .sensitivity_y(PLAYER_CONTROLLER_CAMERA_SENSITIVITY_MULTIPLIER.y)
                 .inverted_y(),
         );
 

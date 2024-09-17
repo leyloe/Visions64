@@ -1,7 +1,7 @@
 use bevy::{app::RunFixedMainLoop, prelude::*, time::run_fixed_main_schedule};
 use leafwing_input_manager::{prelude::*, InputManagerBundle};
 
-use crate::constants::{FIELD_OF_VIEW, PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY};
+use crate::constants::{FIELD_OF_VIEW, PITCH_LIMIT};
 
 use super::{controls::PlayerAction, movement::Player};
 
@@ -50,8 +50,8 @@ fn follow_player(
 fn rotate_camera(mut character_query: Query<(&mut Transform, &ActionState<PlayerAction>)>) {
     for (mut transform, action_state) in &mut character_query {
         let delta = action_state.axis_pair(&PlayerAction::RotateCamera);
-        let delta_yaw = -delta.x * PLAYER_CAMERA_SENSITIVITY.x;
-        let delta_pitch = -delta.y * PLAYER_CAMERA_SENSITIVITY.y;
+        let delta_yaw = -delta.x;
+        let delta_pitch = -delta.y;
 
         let (yaw, pitch, roll) = transform.rotation.to_euler(EulerRot::YXZ);
         let yaw = yaw + delta_yaw;
