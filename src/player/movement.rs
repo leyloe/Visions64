@@ -67,9 +67,13 @@ fn move_player(
 ) {
     let delta_time = time.delta_seconds();
 
-    let camera_transform = camera_query.single();
+    let Ok(camera_transform) = camera_query.get_single() else {
+        return;
+    };
 
-    let (mut linear_velocity, action_state) = player_query.single_mut();
+    let Ok((mut linear_velocity, action_state)) = player_query.get_single_mut() else {
+        return;
+    };
 
     let delta = action_state.axis_pair(&PlayerAction::Move);
 
