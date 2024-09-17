@@ -26,9 +26,9 @@ impl PlayerAction {
         input_map.insert_dual_axis(
             PlayerAction::RotateCamera,
             GamepadStick::RIGHT
+                .with_deadzone_symmetric(0.2)
                 .sensitivity_x(PLAYER_CAMERA_CONTROLLER_SENSITIVITY.x)
                 .sensitivity_y(PLAYER_CAMERA_CONTROLLER_SENSITIVITY.y)
-                .with_deadzone_symmetric(0.2)
                 .inverted_y(),
         );
 
