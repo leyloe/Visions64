@@ -3,28 +3,10 @@ use leafwing_input_manager::{prelude::*, InputManagerBundle};
 
 use crate::constants::{FIELD_OF_VIEW, PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY};
 
-use super::player::Player;
+use super::player::{Player, PlayerAction};
 
 #[derive(Component)]
 pub struct PlayerCamera;
-
-#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
-#[actionlike(DualAxis)]
-pub enum CameraAction {
-    RotateCamera,
-}
-
-impl CameraAction {
-    pub fn default_input_map() -> InputMap<Self> {
-        let mut input_map = InputMap::default();
-
-        input_map.insert_dual_axis(CameraAction::RotateCamera, GamepadStick::LEFT);
-
-        input_map.insert_dual_axis(CameraAction::RotateCamera, MouseMove::default());
-
-        input_map
-    }
-}
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, spawn_camera)
@@ -46,7 +28,7 @@ fn spawn_camera(mut commands: Commands) {
             .into(),
             ..default()
         },
-        InputManagerBundle::with_map(CameraAction::default_input_map()),
+        InputManagerBundle::with_map(PlayerAction::default_input_map()),
     ));
 }
 
@@ -65,9 +47,9 @@ fn follow_player(
         player_transform.translation + player_transform.up() * height_offset;
 }
 
-fn rotate_camera(mut character_query: Query<(&mut Transform, &ActionState<CameraAction>)>) {
+fn rotate_camera(mut character_query: Query<(&mut Transform, &ActionState<PlayerAction>)>) {
     for (mut transform, action_state) in &mut character_query {
-        let delta = action_state.axis_pair(&CameraAction::RotateCamera);
+        let delta = action_state.axis_pair(&PlayerAction::RotateCamera);
         let delta_yaw = -delta.x * PLAYER_CAMERA_SENSITIVITY.x;
         let delta_pitch = -delta.y * PLAYER_CAMERA_SENSITIVITY.y;
 

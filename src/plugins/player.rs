@@ -3,6 +3,7 @@ use avian3d::{
     prelude::*,
 };
 use bevy::prelude::*;
+use leafwing_input_manager::{prelude::*, Actionlike};
 
 use crate::constants::{
     DAMPING, GRAVITY_SCALE, JUMP_IMPULSE, MAX_SLOPE_ANGLE, MOVEMENT_ACCELERATION,
@@ -28,6 +29,37 @@ pub struct MovementDampingFactor(Scalar);
 
 #[derive(Component)]
 pub struct Grounded;
+
+#[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
+pub enum PlayerAction {
+    #[actionlike(DualAxis)]
+    RotateCamera,
+    #[actionlike(DualAxis)]
+    Move,
+    Jump,
+}
+
+impl PlayerAction {
+    pub fn default_input_map() -> InputMap<Self> {
+        let mut input_map = InputMap::default();
+
+        input_map.insert_dual_axis(PlayerAction::Move, KeyboardVirtualDPad::WASD);
+
+        input_map.insert_dual_axis(PlayerAction::Move, KeyboardVirtualDPad::ARROW_KEYS);
+
+        input_map.insert(PlayerAction::Jump, KeyCode::Space);
+
+        input_map.insert_dual_axis(PlayerAction::Move, GamepadStick::LEFT);
+
+        input_map.insert(PlayerAction::Jump, GamepadButtonType::South);
+
+        input_map.insert_dual_axis(PlayerAction::RotateCamera, GamepadStick::RIGHT);
+
+        input_map.insert_dual_axis(PlayerAction::RotateCamera, MouseMove::default());
+
+        input_map
+    }
+}
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, spawn_player).add_systems(
@@ -68,6 +100,7 @@ fn spawn_player(mut commands: Commands) {
         JumpImpulse(JUMP_IMPULSE),
         MovementAcceleration(MOVEMENT_ACCELERATION),
         MovementDampingFactor(DAMPING),
+        InputManagerBundle::with_map(PlayerAction::default_input_map()),
         Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
         Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
         GravityScale(GRAVITY_SCALE),
@@ -75,31 +108,24 @@ fn spawn_player(mut commands: Commands) {
 }
 
 fn move_player(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut player_query: Query<(&mut LinearVelocity, &MovementAcceleration), With<Player>>,
+    mut player_query: Query<
+        (
+            &mut LinearVelocity,
+            &MovementAcceleration,
+            &ActionState<PlayerAction>,
+        ),
+        With<Player>,
+    >,
     camera_query: Query<&Transform, (With<PlayerCamera>, Without<Player>)>,
     time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds_f64().adjust_precision();
 
-    let mut delta = Vec3::default();
-
     let camera_transform = camera_query.single();
 
-    let (mut linear_velocity, movement_acceleration) = player_query.single_mut();
+    let (mut linear_velocity, movement_acceleration, action_state) = player_query.single_mut();
 
-    if keyboard_input.any_pressed([KeyCode::KeyA, KeyCode::ArrowLeft]) {
-        delta.x -= 1.0;
-    }
-    if keyboard_input.any_pressed([KeyCode::KeyD, KeyCode::ArrowRight]) {
-        delta.x += 1.0;
-    }
-    if keyboard_input.any_pressed([KeyCode::KeyS, KeyCode::ArrowDown]) {
-        delta.z -= 1.0;
-    }
-    if keyboard_input.any_pressed([KeyCode::KeyW, KeyCode::ArrowUp]) {
-        delta.z += 1.0;
-    }
+    let delta = action_state.axis_pair(&PlayerAction::Move);
 
     let mut forward: Vec3 = camera_transform.forward().into();
     forward.y = 0.0;
@@ -107,22 +133,23 @@ fn move_player(
 
     let right = camera_transform.right();
 
-    let movement_direction = (right * delta.x + forward * delta.z).normalize_or_zero();
+    let movement_direction = (right * delta.x + forward * delta.y).normalize_or_zero();
 
     linear_velocity.x +=
         movement_direction.x * movement_acceleration.0 * delta_time * PLAYER_MOVEMENT_SPEED;
     linear_velocity.z +=
-        movement_direction.z * movement_acceleration.0 * delta_time * PLAYER_MOVEMENT_SPEED;
+        movement_direction.z * movement_acceleration.0 * delta_time * PLAYER_MOVEMENT_SPEED
 }
 
 fn player_jump(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut player_query: Query<(Option<&Grounded>, &mut LinearVelocity, &JumpImpulse), With<Player>>,
 ) {
-    let (grounded, mut linear_velocity, jump_impulse) = player_query.single_mut();
-
-    if keyboard_input.pressed(KeyCode::Space) && grounded.is_some() {
-        linear_velocity.y = jump_impulse.0;
+    if keyboard_input.pressed(KeyCode::Space) {
+        let (grounded, mut linear_velocity, jump_impulse) = player_query.single_mut();
+        if grounded.is_some() {
+            linear_velocity.y = jump_impulse.0;
+        }
     }
 }
 
