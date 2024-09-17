@@ -47,7 +47,7 @@ fn spawn_player(mut commands: Commands) {
 
     commands.spawn((
         Player,
-        Transform::from_xyz(0.0, 1.0, 0.0),
+        Transform::from_xyz(0.0, 1.001, 0.0),
         GlobalTransform::default(),
         LockedAxes::ROTATION_LOCKED,
         RigidBody::Dynamic,
