@@ -43,19 +43,19 @@ impl PlayerAction {
     pub fn default_input_map() -> InputMap<Self> {
         let mut input_map = InputMap::default();
 
+        input_map.insert_dual_axis(PlayerAction::RotateCamera, MouseMove::default());
+
+        input_map.insert_dual_axis(PlayerAction::RotateCamera, GamepadStick::RIGHT);
+
         input_map.insert_dual_axis(PlayerAction::Move, KeyboardVirtualDPad::WASD);
 
         input_map.insert_dual_axis(PlayerAction::Move, KeyboardVirtualDPad::ARROW_KEYS);
 
-        input_map.insert(PlayerAction::Jump, KeyCode::Space);
-
         input_map.insert_dual_axis(PlayerAction::Move, GamepadStick::LEFT);
 
+        input_map.insert(PlayerAction::Jump, KeyCode::Space);
+
         input_map.insert(PlayerAction::Jump, GamepadButtonType::South);
-
-        input_map.insert_dual_axis(PlayerAction::RotateCamera, GamepadStick::RIGHT);
-
-        input_map.insert_dual_axis(PlayerAction::RotateCamera, MouseMove::default());
 
         input_map
     }
@@ -142,14 +142,20 @@ fn move_player(
 }
 
 fn player_jump(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut player_query: Query<(Option<&Grounded>, &mut LinearVelocity, &JumpImpulse), With<Player>>,
+    mut player_query: Query<
+        (
+            &ActionState<PlayerAction>,
+            Option<&Grounded>,
+            &mut LinearVelocity,
+            &JumpImpulse,
+        ),
+        With<Player>,
+    >,
 ) {
-    if keyboard_input.pressed(KeyCode::Space) {
-        let (grounded, mut linear_velocity, jump_impulse) = player_query.single_mut();
-        if grounded.is_some() {
-            linear_velocity.y = jump_impulse.0;
-        }
+    let (action_state, grounded, mut linear_velocity, jump_impulse) = player_query.single_mut();
+
+    if action_state.pressed(&PlayerAction::Jump) && grounded.is_some() {
+        linear_velocity.y = jump_impulse.0;
     }
 }
 
