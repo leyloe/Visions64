@@ -23,8 +23,8 @@ pub fn plugin(app: &mut App) {
         FixedUpdate,
         (
             move_player,
-            update_grounded,
             apply_movement_damping,
+            update_grounded,
             player_jump,
         )
             .chain(),
