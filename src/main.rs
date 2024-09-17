@@ -3,7 +3,8 @@ use avian_interpolation3d::AvianInterpolationPlugin;
 use bevy::prelude::*;
 use bevy_stuff::plugins::{
     camera::{self},
-    player::{self, PlayerAction},
+    controls::PlayerAction,
+    player::{self},
     window, world,
 };
 use leafwing_input_manager::plugin::InputManagerPlugin;

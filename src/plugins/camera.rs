@@ -3,7 +3,7 @@ use leafwing_input_manager::{prelude::*, InputManagerBundle};
 
 use crate::constants::{FIELD_OF_VIEW, PITCH_LIMIT, PLAYER_CAMERA_SENSITIVITY};
 
-use super::player::{Player, PlayerAction};
+use super::{controls::PlayerAction, player::Player};
 
 #[derive(Component)]
 pub struct PlayerCamera;

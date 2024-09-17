@@ -1,53 +1,22 @@
 use avian3d::{
-    math::{AdjustPrecision as _, Quaternion, Vector},
+    math::{Quaternion, Vector},
     prelude::*,
 };
 use bevy::prelude::*;
-use leafwing_input_manager::{prelude::*, Actionlike};
+use leafwing_input_manager::prelude::*;
 
 use crate::constants::{
     DAMPING, GRAVITY_SCALE, JUMP_IMPULSE, MAX_SLOPE_ANGLE, MOVEMENT_ACCELERATION,
     PLAYER_MOVEMENT_SPEED,
 };
 
-use super::camera::PlayerCamera;
+use super::{camera::PlayerCamera, controls::PlayerAction};
 
 #[derive(Component)]
 pub struct Player;
 
 #[derive(Component)]
 pub struct Grounded;
-
-#[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
-pub enum PlayerAction {
-    #[actionlike(DualAxis)]
-    RotateCamera,
-    #[actionlike(DualAxis)]
-    Move,
-    Jump,
-}
-
-impl PlayerAction {
-    pub fn default_input_map() -> InputMap<Self> {
-        let mut input_map = InputMap::default();
-
-        input_map.insert_dual_axis(PlayerAction::RotateCamera, MouseMove::default());
-
-        input_map.insert_dual_axis(PlayerAction::RotateCamera, GamepadStick::RIGHT);
-
-        input_map.insert_dual_axis(PlayerAction::Move, KeyboardVirtualDPad::WASD);
-
-        input_map.insert_dual_axis(PlayerAction::Move, KeyboardVirtualDPad::ARROW_KEYS);
-
-        input_map.insert_dual_axis(PlayerAction::Move, GamepadStick::LEFT);
-
-        input_map.insert(PlayerAction::Jump, KeyCode::Space);
-
-        input_map.insert(PlayerAction::Jump, GamepadButtonType::South);
-
-        input_map
-    }
-}
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, spawn_player).add_systems(
@@ -96,7 +65,7 @@ fn move_player(
     camera_query: Query<&Transform, (With<PlayerCamera>, Without<Player>)>,
     time: Res<Time>,
 ) {
-    let delta_time = time.delta_seconds_f64().adjust_precision();
+    let delta_time = time.delta_seconds();
 
     let camera_transform = camera_query.single();
 
