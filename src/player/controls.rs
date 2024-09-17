@@ -16,7 +16,14 @@ impl PlayerAction {
 
         input_map.insert_dual_axis(PlayerAction::RotateCamera, MouseMove::default());
 
-        input_map.insert_dual_axis(PlayerAction::RotateCamera, GamepadStick::RIGHT);
+        input_map.insert_dual_axis(
+            PlayerAction::RotateCamera,
+            GamepadStick::RIGHT
+                .with_deadzone_symmetric(0.2)
+                .sensitivity_x(0.8)
+                .sensitivity_y(0.3)
+                .inverted_y(),
+        );
 
         input_map.insert_dual_axis(PlayerAction::Move, KeyboardVirtualDPad::WASD);
 
