@@ -2,7 +2,7 @@ use avian3d::prelude::*;
 use bevy::{color::palettes::tailwind, prelude::*};
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(Startup, (spawn_world_model, spawn_lights));
+    app.add_systems(Startup, (spawn_world_model, spawn_lights, spawn_cube));
 }
 
 fn spawn_world_model(mut commands: Commands, assets: Res<AssetServer>) {
@@ -12,6 +12,25 @@ fn spawn_world_model(mut commands: Commands, assets: Res<AssetServer>) {
         SceneBundle { scene, ..default() },
         ColliderConstructorHierarchy::new(ColliderConstructor::ConvexHullFromMesh),
         RigidBody::Static,
+    ));
+}
+
+fn spawn_cube(
+    mut commands: Commands,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
+    let cube_mesh = meshes.add(Cuboid::default());
+
+    commands.spawn((
+        PbrBundle {
+            mesh: cube_mesh.clone(),
+            material: materials.add(Color::from(tailwind::GRAY_100)),
+            transform: Transform::from_xyz(2.0, 9.0, 0.0),
+            ..default()
+        },
+        RigidBody::Dynamic,
+        Collider::cuboid(1.0, 1.0, 1.0),
     ));
 }
 
