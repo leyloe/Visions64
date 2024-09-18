@@ -4,12 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.14.2", features = ["dynamic_linking"] }
-avian3d = { version = "0.1.2", features = [
-    "simd",
-], git = "https://github.com/Jondolf/avian" }
+bevy = { version = "0.14.2" }
+avian3d = { features = ["simd"], git = "https://github.com/Jondolf/avian" }
 leafwing-input-manager = { git = "https://github.com/Leafwing-Studios/leafwing_input_manager" }
-avian_interpolation3d = { git = "https://github.com/janhohenheim/avian_interpolation", version = "0.1.0" }
+avian_interpolation3d = { git = "https://github.com/janhohenheim/avian_interpolation" }
+
+[features]
+dev = ["bevy/dynamic_linking"]
 
 [profile.dev]
 opt-level = 1
@@ -20,3 +21,11 @@ opt-level = 3
 [lints.clippy]
 too_many_arguments = "allow"
 type_complexity = "allow"
+
+
+[profile.release]
+strip = true
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
