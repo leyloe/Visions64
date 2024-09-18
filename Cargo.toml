@@ -22,7 +22,6 @@ opt-level = 3
 too_many_arguments = "allow"
 type_complexity = "allow"
 
-
 [profile.release]
 strip = true
 opt-level = 3
