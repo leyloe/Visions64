@@ -53,7 +53,7 @@ fn spawn_shapes(
             ..default()
         },
         RigidBody::Dynamic,
-        Collider::cone(1., 1.),
+        Collider::cone(0.5, 1.),
     ));
 }
 
