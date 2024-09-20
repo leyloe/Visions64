@@ -10,6 +10,7 @@ leafwing-input-manager = { git = "https://github.com/Leafwing-Studios/leafwing_i
 avian_interpolation3d = { git = "https://github.com/janhohenheim/avian_interpolation" }
 
 [features]
+physics_debug = []
 dev = ["bevy/dynamic_linking"]
 
 [profile.dev]

@@ -13,7 +13,7 @@ fn main() {
         .add_plugins((
             DefaultPlugins,
             PhysicsPlugins::default().build().disable::<SyncPlugin>(),
-            #[cfg(debug_assertions)]
+            #[cfg(feature = "physics_debug")]
             PhysicsDebugPlugin::default(),
             AvianInterpolationPlugin::default(),
             InputManagerPlugin::<PlayerAction>::default(),
